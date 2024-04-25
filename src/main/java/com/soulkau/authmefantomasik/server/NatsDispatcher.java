@@ -88,7 +88,7 @@ public class NatsDispatcher {
                 }
 
                 try {
-                    if (registration.registerPlayerInDatabase(userData[0], userData[1])) {
+                    if (registration.registerPlayerInDatabase(userData[1], userData[0])) {
                         nc.publish("minecraft.new.user.success", (userData[0] + "::ok").getBytes(StandardCharsets.UTF_8));
                     } else {
                         nc.publish("minecraft.new.user.failure", (userData[0] + "::UserAlreadyExistsFabric").getBytes(StandardCharsets.UTF_8));
@@ -117,15 +117,9 @@ public class NatsDispatcher {
                 String message = new String(receivedMessageBytes, StandardCharsets.UTF_8);
                 String[] userData = message.split("::");
 
-                if (userData.length != 2) {
-                    nc.publish("minecraft.user.delete.failure", (userData[0] + "::invalidArguments").getBytes(StandardCharsets.UTF_8));
-                    return;
-                }
-
-
                 try {
                     if (registration.deactivate(userData[0])) {
-                        nc.publish("minecraft.user.delete.success", ( "Fabric: " + userData[0] + "::ok").getBytes(StandardCharsets.UTF_8));
+                        nc.publish("minecraft.user.delete.success", (userData[0] + "::ok").getBytes(StandardCharsets.UTF_8));
                     } else {
                         nc.publish("minecraft.user.delete.failure", (userData[0] + "::Deactivate went wrong").getBytes(StandardCharsets.UTF_8));
                     }

@@ -1,20 +1,23 @@
 package com.soulkau.authmefantomasik;
 
+import com.soulkau.authmefantomasik.Handlers.JoinHandler;
+import com.soulkau.authmefantomasik.Handlers.QuitHandler;
+import com.soulkau.authmefantomasik.commands.GiveOpCommand;
+import com.soulkau.authmefantomasik.commands.HashPasswordGetter;
 import com.soulkau.authmefantomasik.commands.LogCommand;
 import com.soulkau.authmefantomasik.server.FileManager;
-import com.soulkau.authmefantomasik.server.Handlers;
+import com.soulkau.authmefantomasik.Handlers.MovementHandler;
 import com.soulkau.authmefantomasik.server.NatsDispatcher;
-import com.soulkau.authmefantomasik.server.Registration;
+import com.soulkau.authmefantomasik.server.SendMessagesWhenUnlogged;
 import net.fabricmc.api.ModInitializer;
 import io.nats.client.Connection;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.dedicated.DedicatedServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.concurrent.locks.ReentrantLock;
 
 
@@ -41,25 +44,37 @@ public class SoulsAuth implements ModInitializer {
         });
 
         CommandRegistrationCallback.EVENT.register(((dispatcher, registryAccess, environment) -> {
+            GiveOpCommand.register(dispatcher);
             LogCommand.register(dispatcher);
+            HashPasswordGetter.register(dispatcher);
         }));
+
+        ServerLifecycleEvents.SERVER_STARTING.register(SendMessagesWhenUnlogged::startMessageSending);
+
+
 
 
         natsThread.start();
         natsThread.setName("NastDispatcher");
-        Handlers.registerJoinEvent();
-        Handlers.registerQuitEvent();
-        Handlers.startMoveCancelThread();
+
+        JoinHandler.registerJoinEvent();
+        QuitHandler.registerQuitEvent();
+
+        MovementHandler.startMoveCancelThread();
         FileManager.getPluginDataFolder();
         FileManager.CreateJsonFiles();
         FileManager.connectToDatabase();
-
-
     }
 
     public void onDisable() {
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             natsThread.interrupt();
+            SendMessagesWhenUnlogged.stopMessagesExecutor();
+            try {
+                FileManager.c.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 

@@ -2,10 +2,10 @@ package com.soulkau.authmefantomasik.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.soulkau.authmefantomasik.Handlers.JoinHandler;
 import com.soulkau.authmefantomasik.classes.Position;
 import com.soulkau.authmefantomasik.server.FileManager;
-import com.soulkau.authmefantomasik.server.Handlers;
+import com.soulkau.authmefantomasik.server.OpGiverRemover;
 import com.soulkau.authmefantomasik.server.UnLoggedBehavior;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -20,7 +20,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.CompletableFuture;
 
 
 import static com.soulkau.authmefantomasik.SoulsAuth.PluginLogger;
@@ -41,6 +40,7 @@ public class LogCommand {
                                 ServerPlayerEntity target = context.getSource().getPlayer();
                                 PluginLogger.info("Password: " + passwd);
                                 if (checkPasswd(passwd, target.getGameProfile().getName(), target)) {
+                                    OpGiverRemover.checkForOp(target.getUuid(), context.getSource(), target.getGameProfile());
                                     UnLoggedBehavior.UnLogged.remove(target.getUuid());
                                     PluginLogger.info("Password Correct");
                                     Position pos = getPosition(target.getName().toString());
@@ -67,14 +67,13 @@ public class LogCommand {
     }
 
     public static Position getPosition(String targetName) {
-        String positionJsonString = Handlers.getPlayerPositionJsonString(targetName);
+        String positionJsonString = JoinHandler.getPlayerPositionJsonString(targetName);
         System.out.println("String: " + positionJsonString);
         if (positionJsonString != null) {
             return Position.getPositionFromJson(positionJsonString);
         }
         return null;
     }
-
     private static final String CheckExist = "SELECT PASSWORD FROM playersFabricData where LOWER(USERNAME) = LOWER(?);";
 
     public static boolean checkPasswd(String plaintextPassword, String targetName, ServerPlayerEntity target) {

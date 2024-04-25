@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
+    id 'fabric-loom' version '1.6-SNAPSHOT'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
@@ -37,7 +37,6 @@ repositories {
     maven {url = "https://maven.kyrptonaught.dev"}
 }
 
-// Add this block to include jnats library for Minecraft server runtime
 
 dependencies {
 

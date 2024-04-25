@@ -67,9 +67,14 @@ public class FileManager {
 
     private static File playersLastLocationFile;
 
+    private static String operatorListPath = dataFolder + File.separator + "operatorList.json";
+
+    private static File operatorListFile;
+
     public static void CreateJsonFiles() {
         assetsFile = new File(assetsFilePath);
         playersLastLocationFile = new File(playersLastLocationFilePath);
+        operatorListFile = new File(operatorListPath);
         if (!assetsFile.exists()) {
             try {
                 assetsFile.createNewFile();
@@ -84,7 +89,16 @@ public class FileManager {
                 throw new RuntimeException(e);
             }
         }
+        if (!operatorListFile.exists()) {
+            try {
+                operatorListFile.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
+
+    public static File getOperatorListFile() { return operatorListFile; }
 
     public static File getAssetsFile() {return assetsFile;}
 
