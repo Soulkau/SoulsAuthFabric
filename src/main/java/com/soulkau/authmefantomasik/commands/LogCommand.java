@@ -12,6 +12,7 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.World;
@@ -55,7 +56,7 @@ public class LogCommand {
                                     target.changeGameMode(GameMode.SURVIVAL);
                                     lockedSessions.add(target.getUuid());
                                 } else {
-                                    PluginLogger.info("Password Incorrect");
+                                    context.getSource().sendFeedback(() -> Text.literal("§cНеправильный пароль"), false);
                                 }
 
                                 return 1;
