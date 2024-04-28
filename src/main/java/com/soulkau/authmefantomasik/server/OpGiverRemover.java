@@ -17,9 +17,10 @@ import static com.soulkau.authmefantomasik.SoulsAuth.PluginLogger;
 public class OpGiverRemover {
 
 
-    public static void giveOp(ServerCommandSource source, GameProfile gameProfile, Integer permissionLvl) {
+    public static void giveOp(ServerCommandSource source, GameProfile gameProfile, Integer permissionLvl) throws IOException {
         OperatorList operatorList = source.getServer().getPlayerManager().getOpList();
         operatorList.add(new OperatorEntry(gameProfile, permissionLvl, false));
+        operatorList.save();
     }
 
     public static void addToOpListJson(String name, UUID uuid, Integer permissionLevel) {
